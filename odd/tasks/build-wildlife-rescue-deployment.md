@@ -77,8 +77,8 @@ A generic animal CRUD would satisfy HTTP mechanics but would not demonstrate a m
   - Image evidence: `sha256:1dc4d45834d0c202f2026402bf3d66fe7bcf495d06177a26c1281426c092c824`, `8080/tcp`, `dotnet DockerDucks.Api.dll`, working directory `/app`.
   - Parent spot-check: image metadata confirmed the non-root user, exposed port, entrypoint, and work directory.
   - Runtime note: Docker Desktop required one user-performed restart after BuildKit/CLI `SIGBUS` failures; no Docker data reset or prune was used.
-  - Commit: pending.
-  - Native assessment/review: pending after the work-unit commit.
+  - Commit: `957c826` (`build: containerize wildlife rescue API`).
+  - Native assessment/review: RDD was off and native assessment was schema-incompatible/unassessable; the required high-risk fallback was satisfied by writer verification, independent live Docker verification, and the parent image-metadata spot-check.
 
 - [ ] **WRD-03 — Define the local Kubernetes deployment**
   - Route: delegated to `gentle-ai-worker`.
@@ -127,7 +127,8 @@ A generic animal CRUD would satisfy HTTP mechanics but would not demonstrate a m
 - 2026-09-28: WRD-02 added the Dockerfile and `.dockerignore`; the user also added `odd/` to `.gitignore`, which was explicitly preserved.
 - 2026-09-28: Initial Docker verification was blocked by repeated Docker Desktop/WSL `SIGBUS` failures. A user-performed Docker Desktop restart restored the client/daemon without destructive cleanup.
 - 2026-09-28: Image `practica2-api:v1` built successfully and passed live non-root container checks for health, Swagger, report creation/retrieval, and queue behavior; 12/12 tests remained green.
+- 2026-09-28: WRD-02 was committed as `957c826`; native assessment was unassessable with RDD off, and the completed independent verifier plus parent spot-check satisfied the returned high-risk fallback plan.
 
 ## Next step
 
-Commit the verified WRD-02 slice, assess the committed range, then begin WRD-03 by confirming Kubernetes tooling and adding Namespace, Deployment, and Service manifests.
+Begin WRD-03 by confirming Kubernetes tooling and adding Namespace, Deployment, and Service manifests, followed by live local-cluster verification when available.
