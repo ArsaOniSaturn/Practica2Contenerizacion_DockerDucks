@@ -98,8 +98,8 @@ A generic animal CRUD would satisfy HTTP mechanics but would not demonstrate a m
   - Added `docs/evidencias/README.md` with every required Docker/Kubernetes capture, recommended filenames, pending statuses, five-person video order, PDF mapping, real incident history, and privacy/readability checks.
   - Checks: documentation-to-artifact consistency passed; internal paths resolve; `git diff --check` passed independently and in the parent spot-check.
   - Pending delivery facts remain explicit: screenshots, responsibility assignments, video URL, PDF, collaborator confirmation, and Teams submission.
-  - Commit: pending.
-  - Native assessment/review: pending after the work-unit commit.
+  - Commit: `5a93d2d` (`docs: add reproduction and evidence guides`).
+  - Native assessment/review: RDD was off and native assessment was schema-incompatible/unassessable; writer checks, independent documentation verification, and the parent diff-check satisfy the required high-risk fallback.
 
 ## Acceptance criteria
 
@@ -137,7 +137,8 @@ A generic animal CRUD would satisfy HTTP mechanics but would not demonstrate a m
 - 2026-09-28: WRD-03 was committed as `27d9c56`; native assessment remained unassessable with RDD off, and the completed writer checks, independent verifier, and parent spot-check satisfied the returned fallback plan.
 - 2026-09-28: Remote `origin/main` README commit `e4edacc` was merged as `66ea1ff`, preserving the five confirmed team members and GitHub accounts before the documentation rewrite.
 - 2026-09-28: WRD-04 produced the Spanish reproduction README and evidence guide. Independent verification caught and confirmed correction of an unmapped root URL; final documentation verification and parent diff-check passed.
+- 2026-09-28: WRD-04 was committed as `5a93d2d`; native assessment remained unassessable with RDD off, and writer checks, independent verification, and the parent spot-check satisfied the returned fallback plan.
 
 ## Next step
 
-Commit the verified WRD-04 documentation, assess the committed range, then capture the pending visual evidence while Docker and Kubernetes resources are available before preparing the video and PDF.
+Capture the pending Docker and Kubernetes visual evidence while the verified image and cluster resources are available, then confirm team responsibilities before preparing the video and PDF.
