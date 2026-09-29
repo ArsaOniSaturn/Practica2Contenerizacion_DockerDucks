@@ -1,6 +1,6 @@
 # Evidencias de Docker y Kubernetes
 
-Usá esta lista para preparar capturas legibles y el PDF de la práctica. Todas las evidencias están pendientes: no reemplazan la ejecución real ni prueban por sí mismas una entrega.
+Usá esta lista para organizar las capturas legibles y preparar el PDF de la práctica. Las evidencias Docker y Kubernetes indicadas en las tablas fueron capturadas y verificadas; el video, el PDF y la entrega final conservan sus estados explícitos más adelante.
 
 ## Datos de referencia
 
@@ -17,19 +17,19 @@ Usá esta lista para preparar capturas legibles y el PDF de la práctica. Todas 
 
 | Orden | Archivo recomendado | Comando o acción | Debe verse | Estado |
 |---:|---|---|---|---|
-| 1 | `01-docker-desktop-image.png` | Abrir Docker Desktop > Images. | La imagen `practica2-api:v1`, su etiqueta y tamaño. | Pendiente de captura |
-| 2 | `02-docker-desktop-container.png` | Ejecutar el contenedor y abrir Docker Desktop > Containers. | El contenedor `practica2-api` en ejecución y el mapeo `8080:8080`. | Pendiente de captura |
-| 3 | `03-terminal-docker-images-ps.png` | Ejecutar `docker images practica2-api:v1` y `docker ps --filter "name=practica2-api"`. | La imagen, el nombre del contenedor, el estado y los puertos publicados. | Pendiente de captura |
-| 4 | `04-api-swagger-docker.png` | Abrir `http://localhost:8080/health` y `http://localhost:8080/swagger`. | Respuesta saludable de la API y una pantalla Swagger legible. | Pendiente de captura |
+| 1 | `01-docker-desktop-image.png` | Abrir Docker Desktop > Images. | La imagen `practica2-api:v1`, su etiqueta y tamaño. | Capturada y verificada |
+| 2 | `02-docker-desktop-container.png` | Ejecutar el contenedor y abrir Docker Desktop > Containers. | El contenedor `practica2-api` en ejecución y el mapeo `8080:8080`. | Capturada y verificada |
+| 3 | `03-terminal-docker-images-ps.png` | Ejecutar `docker images practica2-api:v1` y `docker ps --filter "name=practica2-api"`. | La imagen, el nombre del contenedor, el estado y los puertos publicados. | Capturada y verificada |
+| 4 | `04-api-swagger-docker-1.png` y `04-api-swagger-docker-2.png` | Abrir `http://localhost:8080/swagger` y ejecutar `POST /api/rescue-reports`. | El request y la respuesta `201` con prioridad calculada en la interfaz Swagger. | Capturadas y verificadas |
 
 ## Capturas de Kubernetes
 
 | Orden | Archivo recomendado | Comando o acción | Debe verse | Estado |
 |---:|---|---|---|---|
-| 1 | `05-k8s-pods.png` | Ejecutar `kubectl get pods -n practica2 -o wide`. | El pod de `docker-ducks-api` en estado `Running`/`Ready`, sin ocultar namespace ni reinicios. | Pendiente de captura |
-| 2 | `06-k8s-service.png` | Ejecutar `kubectl get services -n practica2`. | El Service `docker-ducks-api`, el puerto `8080` y NodePort `30080` si el entorno lo muestra. | Pendiente de captura |
-| 3 | `07-k8s-port-forward-api.png` | Mantener `kubectl port-forward -n practica2 service/docker-ducks-api 18081:8080` y abrir `http://localhost:18081/swagger`. | La terminal con el reenvío activo y Swagger o `/health` accesible por el puerto `18081`. | Pendiente de captura |
-| 4 | `08-k8s-yaml-excerpts.png` | Mostrar extractos legibles de `k8s/namespace.yaml`, `k8s/deployment.yaml` y `k8s/service.yaml`. | Namespace `practica2`, imagen `practica2-api:v1`, `IfNotPresent`, recursos, probes y Service `docker-ducks-api`. | Pendiente de captura |
+| 1 | `05-k8s-pods.png` | Ejecutar `kubectl get pods -n practica2 -o wide`. | El pod de `docker-ducks-api` en estado `Running`/`Ready`, sin ocultar namespace ni reinicios. | Capturada y verificada |
+| 2 | `06-k8s-service.png` | Ejecutar `kubectl get services -n practica2`. | El Service `docker-ducks-api`, el puerto `8080` y NodePort `30080` si el entorno lo muestra. | Capturada y verificada |
+| 3 | `07-k8s-port-forward-api.png` | Mantener `kubectl port-forward -n practica2 service/docker-ducks-api 18081:8080` y abrir `http://localhost:18081/health`. | La terminal con el reenvío activo y la respuesta `Healthy` accesible por el puerto `18081`. | Capturada y verificada |
+| 4 | `08-k8s-yaml-excerpts-1.png` y `08-k8s-yaml-excerpts-2.png` | Mostrar extractos legibles de `k8s/namespace.yaml`, `k8s/deployment.yaml` y `k8s/service.yaml`. | Namespace `practica2`, imagen `practica2-api:v1`, `IfNotPresent`, recursos, probes y Service `docker-ducks-api`. | Capturadas y verificadas |
 
 > El NodePort `30080` depende de la red local. Si no está disponible, la evidencia de acceso debe usar el `port-forward` en `18081`.
 

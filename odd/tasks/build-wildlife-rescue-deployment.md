@@ -101,6 +101,17 @@ A generic animal CRUD would satisfy HTTP mechanics but would not demonstrate a m
   - Commit: `5a93d2d` (`docs: add reproduction and evidence guides`).
   - Native assessment/review: RDD was off and native assessment was schema-incompatible/unassessable; writer checks, independent documentation verification, and the parent diff-check satisfy the required high-risk fallback.
 
+- [x] **EVD-01 — Capture Docker and Kubernetes visual evidence**
+  - Route: inline, guided with the user because screenshots required the real Docker Desktop, terminal, and browser UI; runtime checks were independently delegated to `gentle-ai-verify`.
+  - Captured all eight evidence items as ten PNG files: six single-image items and two split request/response or YAML-excerpt items.
+  - Opened and verified every saved image for readability, required visible content, and absence of credentials or private notifications.
+  - Updated `docs/evidencias/README.md` only after each corresponding image was observed.
+  - Corrected a captured Swagger UI compatibility defect by upgrading Swashbuckle from 6.6.2 to 7.3.0; 12/12 tests, build, rebuilt Docker image, HTTP checks, and the final browser render passed.
+  - Refreshed Docker Desktop kind's separate containerd image store before the final Kubernetes rollout; the corrected pod remained Running/Ready with zero restarts and the Service remained `8080:30080`.
+  - Checks: file presence and image readability passed; checklist-to-filename consistency passed; Docker and Kubernetes runtime evidence passed.
+  - Commit: pending.
+  - Native assessment/review: pending.
+
 ## Acceptance criteria
 
 - A valid report receives a deterministic priority according to the documented rules.
@@ -138,7 +149,10 @@ A generic animal CRUD would satisfy HTTP mechanics but would not demonstrate a m
 - 2026-09-28: Remote `origin/main` README commit `e4edacc` was merged as `66ea1ff`, preserving the five confirmed team members and GitHub accounts before the documentation rewrite.
 - 2026-09-28: WRD-04 produced the Spanish reproduction README and evidence guide. Independent verification caught and confirmed correction of an unmapped root URL; final documentation verification and parent diff-check passed.
 - 2026-09-28: WRD-04 was committed as `5a93d2d`; native assessment remained unassessable with RDD off, and writer checks, independent verification, and the parent spot-check satisfied the returned fallback plan.
+- 2026-09-29: EVD-01 captured and visually verified all eight Docker/Kubernetes evidence items as ten PNG files.
+- 2026-09-29: Evidence capture exposed a real Swagger UI/OpenAPI 3.0.4 incompatibility. Swashbuckle 7.3.0 fixed the browser render; 12/12 tests, build, Docker rebuild, and HTTP checks passed.
+- 2026-09-29: Docker Desktop kind reused its old internal image with `IfNotPresent`; importing `practica2-api:v1` into the node's `k8s.io` containerd store and restarting the Deployment produced a corrected Running/Ready pod with zero restarts.
 
 ## Next step
 
-Capture the pending Docker and Kubernetes visual evidence while the verified image and cluster resources are available, then confirm team responsibilities before preparing the video and PDF.
+Confirm team responsibilities, record and publish the video, add its real URL to the README, and prepare the final PDF from the verified evidence.
