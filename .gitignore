@@ -431,3 +431,6 @@ FodyWeavers.xsd
 .atl/
 .codegraph/
 odd/
+
+# Local delivery preparation notes
+/docs/evidencias/preparacion-entrega.local.md
