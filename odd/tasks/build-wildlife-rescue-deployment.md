@@ -66,8 +66,8 @@ A generic animal CRUD would satisfy HTTP mechanics but would not demonstrate a m
   - TDD evidence: initial `dotnet test` failed on missing rescue types; minimum implementation passed 12/12 tests; explicit priority-rank refactor also passed 12/12.
   - Final independent verification: restore succeeded; 12/12 tests passed; build completed with 0 warnings and 0 errors.
   - Parent spot-check: `dotnet test DockerDucks.sln --no-restore` passed 12/12.
-  - Commit: included in the WRD-01 work-unit commit.
-  - Native assessment/review: pending after the work-unit commit.
+  - Commit: `b46c7fc` (`feat: add wildlife rescue prioritization API`).
+  - Native assessment/review: native review declined for this candidate without creating a lineage; native assessment was schema-incompatible/unassessable, so the required independent verifier and parent spot-check form the verification record.
 
 - [ ] **WRD-02 — Containerize the verified API**
   - Route: delegated to `gentle-ai-worker` if more than one non-trivial file is required; otherwise inline.
@@ -120,7 +120,8 @@ A generic animal CRUD would satisfy HTTP mechanics but would not demonstrate a m
 - 2026-09-28: An interrupted NuGet download had produced multiple zero-byte manifests. Only user-authorized, confirmed relevant package-version directories were removed and redownloaded; the unrelated malformed `Microsoft.OpenApi` 1.6.14 cache entry was preserved.
 - 2026-09-28: Final restore, test, build, and parent spot-check passed with 0 warnings and 0 errors.
 - 2026-09-28: The WRD-01 staged slice contained 567 additions including planning and generated template files; the user selected `feature-branch-chain` for future review slices.
+- 2026-09-28: WRD-01 was committed as `b46c7fc`. Native review was declined without lineage creation; assessment remained unassessable, so the successful independent verification and parent spot-check satisfy the returned high-risk fallback plan.
 
 ## Next step
 
-Create the authorized WRD-01 local work-unit commit, run native risk assessment on that committed range, and then begin WRD-02.
+Begin WRD-02 by adding and statically validating the Dockerfile and `.dockerignore`; live Docker evidence remains pending until Docker Desktop is available.
