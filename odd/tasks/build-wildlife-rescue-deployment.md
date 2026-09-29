@@ -38,7 +38,7 @@ A generic animal CRUD would satisfy HTTP mechanics but would not demonstrate a m
 - Image tag: `practica2-api:v1`.
 - Kubernetes image pull policy: `IfNotPresent`.
 - Kubernetes resources must define CPU and memory requests and limits.
-- Docker and Kubernetes CLIs are not currently available in this WSL environment; runtime evidence must be captured later from Docker Desktop with Kubernetes enabled.
+- Docker Desktop became available through WSL during WRD-02 and now supports live image/container verification; Kubernetes CLI availability remains to be confirmed for WRD-03.
 - Do not fabricate screenshots or successful runtime evidence.
 
 ## Testing mode
@@ -69,13 +69,16 @@ A generic animal CRUD would satisfy HTTP mechanics but would not demonstrate a m
   - Commit: `b46c7fc` (`feat: add wildlife rescue prioritization API`).
   - Native assessment/review: native review declined for this candidate without creating a lineage; native assessment was schema-incompatible/unassessable, so the required independent verifier and parent spot-check form the verification record.
 
-- [ ] **WRD-02 — Containerize the verified API**
-  - Route: delegated to `gentle-ai-worker` if more than one non-trivial file is required; otherwise inline.
-  - Trigger: determined from the finalized file surface.
-  - Add a multi-stage Dockerfile and `.dockerignore`, with a stable container port and non-root execution where supported.
-  - Checks: static Dockerfile inspection; Docker build/run remain pending until Docker Desktop is available.
+- [x] **WRD-02 — Containerize the verified API**
+  - Route: delegated to `gentle-ai-worker`; independently verified by `gentle-ai-verify`.
+  - Trigger: two non-trivial deployment files plus live Docker runtime verification.
+  - Added a multi-stage .NET 8 Dockerfile and focused `.dockerignore`, using container port 8080 and non-root user 1654.
+  - Live checks: `docker build -t practica2-api:v1 .` passed; image inspection passed; an ephemeral container served health, OpenAPI, report creation/retrieval, and the priority queue; 12/12 .NET tests passed.
+  - Image evidence: `sha256:1dc4d45834d0c202f2026402bf3d66fe7bcf495d06177a26c1281426c092c824`, `8080/tcp`, `dotnet DockerDucks.Api.dll`, working directory `/app`.
+  - Parent spot-check: image metadata confirmed the non-root user, exposed port, entrypoint, and work directory.
+  - Runtime note: Docker Desktop required one user-performed restart after BuildKit/CLI `SIGBUS` failures; no Docker data reset or prune was used.
   - Commit: pending.
-  - Native assessment/review: pending.
+  - Native assessment/review: pending after the work-unit commit.
 
 - [ ] **WRD-03 — Define the local Kubernetes deployment**
   - Route: delegated to `gentle-ai-worker`.
@@ -121,7 +124,10 @@ A generic animal CRUD would satisfy HTTP mechanics but would not demonstrate a m
 - 2026-09-28: Final restore, test, build, and parent spot-check passed with 0 warnings and 0 errors.
 - 2026-09-28: The WRD-01 staged slice contained 567 additions including planning and generated template files; the user selected `feature-branch-chain` for future review slices.
 - 2026-09-28: WRD-01 was committed as `b46c7fc`. Native review was declined without lineage creation; assessment remained unassessable, so the successful independent verification and parent spot-check satisfy the returned high-risk fallback plan.
+- 2026-09-28: WRD-02 added the Dockerfile and `.dockerignore`; the user also added `odd/` to `.gitignore`, which was explicitly preserved.
+- 2026-09-28: Initial Docker verification was blocked by repeated Docker Desktop/WSL `SIGBUS` failures. A user-performed Docker Desktop restart restored the client/daemon without destructive cleanup.
+- 2026-09-28: Image `practica2-api:v1` built successfully and passed live non-root container checks for health, Swagger, report creation/retrieval, and queue behavior; 12/12 tests remained green.
 
 ## Next step
 
-Begin WRD-02 by adding and statically validating the Dockerfile and `.dockerignore`; live Docker evidence remains pending until Docker Desktop is available.
+Commit the verified WRD-02 slice, assess the committed range, then begin WRD-03 by confirming Kubernetes tooling and adding Namespace, Deployment, and Service manifests.

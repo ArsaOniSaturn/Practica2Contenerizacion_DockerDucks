@@ -430,3 +430,4 @@ FodyWeavers.xsd
 # Local agent runtime state
 .atl/
 .codegraph/
+odd/
