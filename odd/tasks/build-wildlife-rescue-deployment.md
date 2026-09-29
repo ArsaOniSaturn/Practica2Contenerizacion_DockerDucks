@@ -109,8 +109,8 @@ A generic animal CRUD would satisfy HTTP mechanics but would not demonstrate a m
   - Corrected a captured Swagger UI compatibility defect by upgrading Swashbuckle from 6.6.2 to 7.3.0; 12/12 tests, build, rebuilt Docker image, HTTP checks, and the final browser render passed.
   - Refreshed Docker Desktop kind's separate containerd image store before the final Kubernetes rollout; the corrected pod remained Running/Ready with zero restarts and the Service remained `8080:30080`.
   - Checks: file presence and image readability passed; checklist-to-filename consistency passed; Docker and Kubernetes runtime evidence passed.
-  - Commit: pending.
-  - Native assessment/review: pending.
+  - Commits: `37a880e` (`fix: support OpenAPI 3.0.4 in Swagger UI`) and `5c85a64` (`docs: add verified deployment evidence`).
+  - Native assessment/review: RDD was off and assessment was unassessable because the evidence images were untracked; the returned high-risk fallback was satisfied by writer/runtime checks, independent test/build/runtime and image verification, correction of the verifier's two documentation findings, final independent PASS, and parent visual spot-checks.
 
 ## Acceptance criteria
 
@@ -152,6 +152,7 @@ A generic animal CRUD would satisfy HTTP mechanics but would not demonstrate a m
 - 2026-09-29: EVD-01 captured and visually verified all eight Docker/Kubernetes evidence items as ten PNG files.
 - 2026-09-29: Evidence capture exposed a real Swagger UI/OpenAPI 3.0.4 incompatibility. Swashbuckle 7.3.0 fixed the browser render; 12/12 tests, build, Docker rebuild, and HTTP checks passed.
 - 2026-09-29: Docker Desktop kind reused its old internal image with `IfNotPresent`; importing `practica2-api:v1` into the node's `k8s.io` containerd store and restarting the Deployment produced a corrected Running/Ready pod with zero restarts.
+- 2026-09-29: EVD-01 passed final independent verification after correcting two documentation inconsistencies and recapturing Docker evidence 01–03 against the final image and container; commits `37a880e` and `5c85a64` preserve the fix and evidence.
 
 ## Next step
 
