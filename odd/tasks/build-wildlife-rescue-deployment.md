@@ -91,14 +91,15 @@ A generic animal CRUD would satisfy HTTP mechanics but would not demonstrate a m
   - Commit: `27d9c56` (`deploy: add local Kubernetes manifests`).
   - Native assessment/review: RDD was off and native assessment was schema-incompatible/unassessable; writer validation, independent live-cluster verification, and the parent pod/Service spot-check satisfy the required high-risk fallback.
 
-- [ ] **WRD-04 — Document reproduction and evidence capture**
-  - Route: delegated to `gentle-ai-worker`.
+- [x] **WRD-04 — Document reproduction and evidence capture**
+  - Route: delegated to `gentle-ai-worker`; independently verified by `gentle-ai-verify`.
   - Trigger: README plus evidence documentation.
-  - Write the Spanish README with technology, endpoints, ports, commands, team placeholders or confirmed names, video placeholder, and exact validation steps.
-  - Add a Spanish evidence checklist naming every required Docker and Kubernetes capture without fabricating results.
-  - Checks: documentation-to-code consistency and link/path checks.
+  - Rewrote the Spanish README with the five confirmed members, API rules/endpoints, local/Docker/Kubernetes reproduction commands, verified ports, pending video state, collaborator reminder, and in-memory limitation.
+  - Added `docs/evidencias/README.md` with every required Docker/Kubernetes capture, recommended filenames, pending statuses, five-person video order, PDF mapping, real incident history, and privacy/readability checks.
+  - Checks: documentation-to-artifact consistency passed; internal paths resolve; `git diff --check` passed independently and in the parent spot-check.
+  - Pending delivery facts remain explicit: screenshots, responsibility assignments, video URL, PDF, collaborator confirmation, and Teams submission.
   - Commit: pending.
-  - Native assessment/review: pending.
+  - Native assessment/review: pending after the work-unit commit.
 
 ## Acceptance criteria
 
@@ -134,7 +135,9 @@ A generic animal CRUD would satisfy HTTP mechanics but would not demonstrate a m
 - 2026-09-28: Docker Desktop Kubernetes was enabled with context `docker-desktop`; client-side validation and 12/12 .NET tests passed after regenerating Linux NuGet assets that had been overwritten with Windows paths.
 - 2026-09-28: WRD-03 deployed Namespace, Deployment, Service, and one healthy pod. Direct NodePort access failed, but the course-accepted port-forward path passed health, Swagger, report creation/retrieval, and queue checks. Live resources remain running for screenshots.
 - 2026-09-28: WRD-03 was committed as `27d9c56`; native assessment remained unassessable with RDD off, and the completed writer checks, independent verifier, and parent spot-check satisfied the returned fallback plan.
+- 2026-09-28: Remote `origin/main` README commit `e4edacc` was merged as `66ea1ff`, preserving the five confirmed team members and GitHub accounts before the documentation rewrite.
+- 2026-09-28: WRD-04 produced the Spanish reproduction README and evidence guide. Independent verification caught and confirmed correction of an unmapped root URL; final documentation verification and parent diff-check passed.
 
 ## Next step
 
-Collect confirmed team/documentation metadata, then begin WRD-04 with a Spanish reproduction README and an evidence checklist grounded in the verified Docker and Kubernetes commands.
+Commit the verified WRD-04 documentation, assess the committed range, then capture the pending visual evidence while Docker and Kubernetes resources are available before preparing the video and PDF.
