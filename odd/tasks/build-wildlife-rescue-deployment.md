@@ -38,7 +38,7 @@ A generic animal CRUD would satisfy HTTP mechanics but would not demonstrate a m
 - Image tag: `practica2-api:v1`.
 - Kubernetes image pull policy: `IfNotPresent`.
 - Kubernetes resources must define CPU and memory requests and limits.
-- Docker Desktop became available through WSL during WRD-02 and now supports live image/container verification; Kubernetes CLI availability remains to be confirmed for WRD-03.
+- Docker Desktop and its local Kubernetes cluster are available through WSL; direct NodePort access was not reachable, so the verified access method is `kubectl port-forward`.
 - Do not fabricate screenshots or successful runtime evidence.
 
 ## Testing mode
@@ -80,13 +80,16 @@ A generic animal CRUD would satisfy HTTP mechanics but would not demonstrate a m
   - Commit: `957c826` (`build: containerize wildlife rescue API`).
   - Native assessment/review: RDD was off and native assessment was schema-incompatible/unassessable; the required high-risk fallback was satisfied by writer verification, independent live Docker verification, and the parent image-metadata spot-check.
 
-- [ ] **WRD-03 — Define the local Kubernetes deployment**
-  - Route: delegated to `gentle-ai-worker`.
-  - Trigger: multiple Kubernetes manifests.
-  - Add Namespace, Deployment, and Service resources with coherent labels/selectors, versioned image, `IfNotPresent`, health probes, and resource requests/limits.
-  - Checks: structural YAML validation where available; live `kubectl` checks remain pending until Docker Desktop Kubernetes is available.
+- [x] **WRD-03 — Define the local Kubernetes deployment**
+  - Route: delegated to `gentle-ai-worker`; independently verified by `gentle-ai-verify` against the live Docker Desktop cluster.
+  - Trigger: three Kubernetes manifests plus live cluster mutation and HTTP verification.
+  - Added Namespace, Deployment, and NodePort Service with coherent labels/selectors, `practica2-api:v1`, `IfNotPresent`, named port 8080, health probes, and required CPU/memory requests and limits.
+  - Live checks: rollout succeeded; one pod is Ready/Running with zero restarts; Service exposes `8080:30080`; health, Swagger, POST 201, GET by id, and queue passed through `kubectl port-forward` on localhost:18081.
+  - Parent spot-check: `kubectl get pods -n practica2 -o wide` and `kubectl get svc -n practica2` confirmed the running pod and Service.
+  - Operational notes: apply `namespace.yaml` before Deployment and Service to avoid namespace-creation ordering; direct NodePort `localhost:30080` was not reachable from WSL/Windows, so documentation must use port-forward.
+  - Known API documentation note: Swagger lists POST response 200 while runtime correctly returns 201; this does not block deployment acceptance and must be documented or corrected separately.
   - Commit: pending.
-  - Native assessment/review: pending.
+  - Native assessment/review: pending after the work-unit commit.
 
 - [ ] **WRD-04 — Document reproduction and evidence capture**
   - Route: delegated to `gentle-ai-worker`.
@@ -128,7 +131,9 @@ A generic animal CRUD would satisfy HTTP mechanics but would not demonstrate a m
 - 2026-09-28: Initial Docker verification was blocked by repeated Docker Desktop/WSL `SIGBUS` failures. A user-performed Docker Desktop restart restored the client/daemon without destructive cleanup.
 - 2026-09-28: Image `practica2-api:v1` built successfully and passed live non-root container checks for health, Swagger, report creation/retrieval, and queue behavior; 12/12 tests remained green.
 - 2026-09-28: WRD-02 was committed as `957c826`; native assessment was unassessable with RDD off, and the completed independent verifier plus parent spot-check satisfied the returned high-risk fallback plan.
+- 2026-09-28: Docker Desktop Kubernetes was enabled with context `docker-desktop`; client-side validation and 12/12 .NET tests passed after regenerating Linux NuGet assets that had been overwritten with Windows paths.
+- 2026-09-28: WRD-03 deployed Namespace, Deployment, Service, and one healthy pod. Direct NodePort access failed, but the course-accepted port-forward path passed health, Swagger, report creation/retrieval, and queue checks. Live resources remain running for screenshots.
 
 ## Next step
 
-Begin WRD-03 by confirming Kubernetes tooling and adding Namespace, Deployment, and Service manifests, followed by live local-cluster verification when available.
+Commit the verified WRD-03 manifests, assess the committed range, then begin WRD-04 documentation and evidence preparation using the verified Docker and Kubernetes commands.
