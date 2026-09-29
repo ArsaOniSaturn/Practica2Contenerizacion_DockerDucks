@@ -88,8 +88,8 @@ A generic animal CRUD would satisfy HTTP mechanics but would not demonstrate a m
   - Parent spot-check: `kubectl get pods -n practica2 -o wide` and `kubectl get svc -n practica2` confirmed the running pod and Service.
   - Operational notes: apply `namespace.yaml` before Deployment and Service to avoid namespace-creation ordering; direct NodePort `localhost:30080` was not reachable from WSL/Windows, so documentation must use port-forward.
   - Known API documentation note: Swagger lists POST response 200 while runtime correctly returns 201; this does not block deployment acceptance and must be documented or corrected separately.
-  - Commit: pending.
-  - Native assessment/review: pending after the work-unit commit.
+  - Commit: `27d9c56` (`deploy: add local Kubernetes manifests`).
+  - Native assessment/review: RDD was off and native assessment was schema-incompatible/unassessable; writer validation, independent live-cluster verification, and the parent pod/Service spot-check satisfy the required high-risk fallback.
 
 - [ ] **WRD-04 — Document reproduction and evidence capture**
   - Route: delegated to `gentle-ai-worker`.
@@ -133,7 +133,8 @@ A generic animal CRUD would satisfy HTTP mechanics but would not demonstrate a m
 - 2026-09-28: WRD-02 was committed as `957c826`; native assessment was unassessable with RDD off, and the completed independent verifier plus parent spot-check satisfied the returned high-risk fallback plan.
 - 2026-09-28: Docker Desktop Kubernetes was enabled with context `docker-desktop`; client-side validation and 12/12 .NET tests passed after regenerating Linux NuGet assets that had been overwritten with Windows paths.
 - 2026-09-28: WRD-03 deployed Namespace, Deployment, Service, and one healthy pod. Direct NodePort access failed, but the course-accepted port-forward path passed health, Swagger, report creation/retrieval, and queue checks. Live resources remain running for screenshots.
+- 2026-09-28: WRD-03 was committed as `27d9c56`; native assessment remained unassessable with RDD off, and the completed writer checks, independent verifier, and parent spot-check satisfied the returned fallback plan.
 
 ## Next step
 
-Commit the verified WRD-03 manifests, assess the committed range, then begin WRD-04 documentation and evidence preparation using the verified Docker and Kubernetes commands.
+Collect confirmed team/documentation metadata, then begin WRD-04 with a Spanish reproduction README and an evidence checklist grounded in the verified Docker and Kubernetes commands.
