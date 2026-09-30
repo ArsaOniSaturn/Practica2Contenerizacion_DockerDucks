@@ -1,6 +1,4 @@
-# Docker Ducks — guía de reproducción
-
-API REST para registrar rescates de fauna silvestre y priorizarlos automáticamente como `Critical`, `High` o `Medium`. Esta guía permite ejecutar la práctica localmente, en Docker y en Kubernetes sin asumir que las evidencias, el video, el PDF o la entrega ya estén completos.
+# Docker Ducks — API de rescates de fauna silvestre
 
 ## Integrantes
 
@@ -12,34 +10,157 @@ API REST para registrar rescates de fauna silvestre y priorizarlos automáticame
 | Jose David Vasquez | `jvas04` |
 | Paula Andrea Calderon Quintero | `paucq` |
 
-## Ruta rápida
+## Descripción y objetivo
 
-1. Instalá .NET 8, Docker Desktop, Kubernetes habilitado en Docker Desktop y `kubectl`.
-2. Ejecutá la API localmente o construí la imagen Docker.
-3. Aplicá Kubernetes en el orden indicado y accedé mediante `port-forward`.
-4. Consultá la [lista de evidencias](docs/evidencias/README.md) antes de capturar material o preparar el PDF.
+API REST en ASP.NET Core (.NET 8) para registrar reportes de rescate de fauna silvestre y organizar su atención según prioridad: `Critical`, `High` o `Medium`. La práctica demuestra la construcción de una imagen Docker y su ejecución en Kubernetes, con verificación funcional y de salud.
 
-## Funcionalidad de la API
+Podés seguir las rutas de ejecución local, Docker o Kubernetes de este documento. Los resultados capturados están en el [informe de evidencias](docs/evidencias/README.md); el video, el PDF y otros pendientes de entrega se detallan al final.
 
-Cada reporte recibe una prioridad determinística:
+## Arquitectura
 
-| Regla | Prioridad |
+La API usa Minimal APIs. El endpoint de creación valida la solicitud, calcula la prioridad y guarda el reporte en un repositorio singleton en memoria. Las consultas usan ese mismo repositorio; no hay base de datos ni servicios externos.
+
+```mermaid
+flowchart LR
+    Client["Cliente HTTP / Swagger"] --> Post["POST /api/rescue-reports: validación"]
+    Post --> Priority["PriorityCalculator.Determine"]
+    Priority --> Save["Endpoint: crea el reporte y llama Add"]
+    Save --> Repository["RescueReportRepository: memoria del proceso"]
+    Client --> Get["GET por ID / cola"]
+    Get --> Repository
+    Repository --> Queue["Cola: prioridad y luego fecha de creación"]
+```
+
+El [Dockerfile](Dockerfile) compila con el SDK de .NET 8 y ejecuta la API con la imagen de ASP.NET 8, como usuario no root, en el puerto `8080`. Los [manifiestos](k8s/deployment.yaml) declaran una sola réplica, recursos de CPU/memoria y probes de readiness/liveness sobre `/health`.
+
+```mermaid
+flowchart LR
+    Source["src/DockerDucks.Api"] --> Build["Dockerfile: restore y publish"]
+    Build --> Image["practica2-api:v1"]
+    Image --> Docker["Contenedor Docker: 8080:8080"]
+    Image --> Load["Carga de imagen en el clúster"]
+    Load --> Pod["Deployment docker-ducks-api: 1 réplica, puerto 8080"]
+    Service["Service docker-ducks-api: NodePort 30080, puerto 8080"] --> Pod
+    Browser["Cliente local: localhost:18081"] --> Forward["kubectl port-forward 18081:8080"]
+    Forward --> Service
+```
+
+El Deployment y el Service pertenecen al namespace `practica2`. El NodePort `30080` depende de la red del entorno; la ruta local demostrada es `port-forward`. No se configura Ingress ni se afirma un despliegue en la nube.
+
+## Estructura del repositorio
+
+```text
+DockerDucks.sln                    Solución .NET
+src/DockerDucks.Api/               API y reglas de rescate
+  Program.cs                      Endpoints, validación y Swagger
+  RescueReports/                  Modelo, calculadora y repositorio
+tests/DockerDucks.Api.Tests/       Pruebas de reglas e integración
+Dockerfile                        Construcción multietapa
+k8s/                              Namespace, Deployment y Service
+docs/evidencias/                   Informe ilustrado y capturas
+```
+
+## Requisitos
+
+| Ruta | Herramientas |
 |---|---|
-| `condition` es `Critical` o `immediateDanger` es `true` | `Critical` |
-| `condition` es `Injured` y no hay peligro inmediato | `High` |
-| `condition` es `Stable` y no hay peligro inmediato | `Medium` |
+| Local y pruebas | SDK de .NET 8 |
+| Docker | Docker en ejecución; acceso a las imágenes base durante la construcción |
+| Kubernetes | Clúster disponible, `kubectl` con el contexto correcto e imagen cargada en ese entorno |
 
-Los campos de texto, `condition` y una `quantity` mayor que cero son obligatorios. La cola se ordena por prioridad (`Critical`, `High`, `Medium`) y luego por el reporte más antiguo.
+El entorno documentado usa Docker Desktop con Kubernetes basado en kind de un solo nodo. La importación indicada abajo es específica de ese entorno. Ejecutá los comandos desde la raíz del repositorio; las tuberías mostradas usan una terminal compatible con Bash.
 
-| Método | Endpoint | Resultado esperado |
+## Ejecución local
+
+Restaurá dependencias y ejecutá las pruebas **antes** de iniciar el servidor:
+
+```bash
+dotnet restore DockerDucks.sln
+dotnet test DockerDucks.sln --no-restore
+```
+
+Después, iniciá la API:
+
+```bash
+dotnet run --project src/DockerDucks.Api --urls http://localhost:8080
+```
+
+Este comando mantiene ocupada la terminal; detenelo con `Ctrl+C`. Mientras esté activo, abrí [Swagger local](http://localhost:8080/swagger) o [salud local](http://localhost:8080/health). Para ejecutar comandos adicionales, usá otra terminal.
+
+## Ejecución con Docker
+
+**El puerto local `8080` no puede estar ocupado por la ejecución .NET y el contenedor a la vez.** Detené la API local antes de publicar ese puerto con Docker.
+
+```bash
+docker build -t practica2-api:v1 .
+docker images practica2-api:v1
+docker run -d -p 8080:8080 --name practica2-api practica2-api:v1
+docker ps --filter "name=practica2-api"
+```
+
+Accedé a `http://localhost:8080/swagger` y `http://localhost:8080/health`. El nombre `practica2-api` debe estar disponible; si ya existe un contenedor de una ejecución anterior, revisá su estado antes de repetir `docker run`. Para detenerlo sin eliminarlo:
+
+```bash
+docker stop practica2-api
+```
+
+## Ejecución en Kubernetes
+
+### 1. Cargar la imagen correcta
+
+Construí `practica2-api:v1` con el comando Docker anterior. En el **Docker Desktop con kind de un solo nodo observado**, Docker y Kubernetes usan almacenes separados: que `docker images` muestre la imagen no significa que containerd tenga esa versión. La importación local verificada, antes del despliegue, es:
+
+```bash
+docker save practica2-api:v1 | docker exec -i desktop-control-plane ctr -n k8s.io images import -
+```
+
+Este comando requiere que el nodo sea el contenedor `desktop-control-plane`; no es una receta universal ni una publicación en la nube. En otros clústeres, cargá la imagen correspondiente mediante el mecanismo de tu entorno o un registro compatible con la referencia del Deployment.
+
+### 2. Aplicar los recursos y comprobar el estado
+
+Creá primero el namespace y luego los recursos que lo usan:
+
+```bash
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+kubectl rollout status deployment/docker-ducks-api -n practica2
+kubectl get pods -n practica2
+kubectl get services -n practica2
+```
+
+El Deployment usa `practica2-api:v1` con `imagePullPolicy: IfNotPresent`. **Si reconstruís la misma etiqueta `v1`, volvé a importar la imagen y reiniciá el rollout** para que los pods usen la versión actualizada en el entorno observado:
+
+```bash
+docker save practica2-api:v1 | docker exec -i desktop-control-plane ctr -n k8s.io images import -
+kubectl rollout restart deployment/docker-ducks-api -n practica2
+kubectl rollout status deployment/docker-ducks-api -n practica2
+```
+
+### 3. Acceder a la API
+
+Mantené abierto este comando en otra terminal:
+
+```bash
+kubectl port-forward -n practica2 service/docker-ducks-api 18081:8080
+```
+
+Abrí [Swagger en Kubernetes](http://localhost:18081/swagger) o [salud en Kubernetes](http://localhost:18081/health). El puerto local `18081` evita competir con Docker en `8080`. El Service también declara NodePort `30080`, pero su acceso directo no estuvo disponible en el entorno de captura.
+
+## Pruebas y contrato de la API
+
+Las pruebas en `tests/DockerDucks.Api.Tests/` cubren reglas de prioridad, creación y consulta, ID desconocido, campos inválidos, orden de la cola, salud y disponibilidad de OpenAPI. Se ejecutan con `dotnet test DockerDucks.sln --no-restore` después de restaurar; no requieren iniciar manualmente la API.
+
+| Método | Ruta | Comportamiento |
 |---|---|---|
-| `POST` | `/api/rescue-reports` | Crea un reporte y responde `201 Created`. |
-| `GET` | `/api/rescue-reports/queue` | Devuelve la cola priorizada. |
-| `GET` | `/api/rescue-reports/{id}` | Devuelve un reporte o `404 Not Found`. |
-| `GET` | `/health` | Expone el estado de salud. |
-| `GET` | `/swagger` | Abre la interfaz Swagger. |
+| `POST` | `/api/rescue-reports` | Crea un reporte: `201 Created` y cabecera `Location`; validación inválida: `400`. |
+| `GET` | `/api/rescue-reports/queue` | Devuelve la cola ordenada: `200`. |
+| `GET` | `/api/rescue-reports/{id:guid}` | Consulta por GUID: `200` o `404` si no existe. |
+| `GET` | `/health` | Comprobación de salud. |
+| `GET` | `/swagger` | Interfaz de documentación y prueba. |
+| `GET` | `/swagger/v1/swagger.json` | Documento OpenAPI. |
 
-Ejemplo válido para `POST /api/rescue-reports`:
+Ejemplo de solicitud para `POST /api/rescue-reports`:
 
 ```json
 {
@@ -52,80 +173,26 @@ Ejemplo válido para `POST /api/rescue-reports`:
 }
 ```
 
-> **Limitación:** los reportes se guardan solo en memoria. Se pierden al reiniciar la API, el contenedor o el pod.
+La respuesta contiene esos datos más `id`, `priority` y `createdAt` (fecha UTC); en este caso, `priority` es `High`. Los tres textos deben contener caracteres no blancos, `condition` debe estar presente y `quantity` debe ser mayor que cero. Las condiciones del dominio son `Stable`, `Injured` y `Critical`; los enums se serializan como texto.
 
-## Ejecución local
-
-Desde la raíz del repositorio:
-
-```bash
-dotnet restore DockerDucks.sln
-dotnet run --project src/DockerDucks.Api --urls http://localhost:8080
-dotnet test DockerDucks.sln --no-restore
-```
-
-Con la aplicación en ejecución, verificá `http://localhost:8080/health` y `http://localhost:8080/swagger`.
-
-## Docker
-
-Construí la imagen versionada:
-
-```bash
-docker build -t practica2-api:v1 .
-docker images practica2-api:v1
-```
-
-Iniciá y listá el contenedor:
-
-```bash
-docker run -d -p 8080:8080 --name practica2-api practica2-api:v1
-docker ps --filter "name=practica2-api"
-```
-
-En otra terminal, verificá `http://localhost:8080/health` y `http://localhost:8080/swagger`. Para limpieza opcional, detené y eliminá el contenedor cuando ya no necesites las evidencias:
-
-```bash
-docker stop practica2-api
-docker rm practica2-api
-```
-
-## Kubernetes
-
-Aplicá los manifiestos **en este orden**: primero el namespace, luego el deployment y por último el service.
-
-```bash
-kubectl apply -f k8s/namespace.yaml
-kubectl apply -f k8s/deployment.yaml
-kubectl apply -f k8s/service.yaml
-```
-
-Comprobá el despliegue:
-
-```bash
-kubectl rollout status deployment/docker-ducks-api -n practica2
-kubectl get pods -n practica2
-kubectl get services -n practica2
-```
-
-Acceso verificado para la práctica: mantené este comando abierto y navegá a `http://localhost:18081/swagger`; también podés comprobar salud en `http://localhost:18081/health`.
-
-```bash
-kubectl port-forward -n practica2 service/docker-ducks-api 18081:8080
-```
-
-El Service también declara NodePort `30080`, pero su acceso depende del entorno; si `localhost:30080` no responde, usá `port-forward` como ruta de acceso.
-
-| Elemento | Propósito |
+| Regla | Prioridad |
 |---|---|
-| Namespace `practica2` | Aísla los recursos de la práctica. |
-| Imagen `practica2-api:v1` | Identifica la versión local que debe desplegarse. |
-| `imagePullPolicy: IfNotPresent` | Reutiliza la imagen local si ya está disponible en el clúster. |
-| Requests y limits | Reservan y acotan CPU y memoria del contenedor. |
-| Readiness y liveness probes | Consultan `/health` para publicar tráfico y detectar fallas. |
+| `condition` es `Critical` o `immediateDanger` es `true` | `Critical` |
+| `condition` es `Injured`, sin peligro inmediato | `High` |
+| `condition` es `Stable`, sin peligro inmediato | `Medium` |
 
-## Entregables pendientes
+La cola ordena primero por `Critical`, `High`, `Medium` y después por fecha de creación más antigua dentro de cada prioridad.
 
-- Video: `Pendiente de publicación`.
-- Agregá al colaborador `oalarconpe`.
-- Verificá que los enlaces y el PDF sean accesibles antes de enviarlos por Teams.
-- Registrá las capturas y el contenido del PDF en la [lista de evidencias](docs/evidencias/README.md).
+## Evidencias
+
+El [informe de evidencias](docs/evidencias/README.md) reúne capturas de imagen y contenedor Docker, solicitud y respuesta desde Swagger, pod y Service de Kubernetes, salud por `port-forward` y extractos de los manifiestos. También explica los problemas encontrados y su resolución. Es la base factual para preparar el PDF, no una afirmación de que el PDF ya esté entregado.
+
+## Limitaciones y pendientes
+
+- **Persistencia:** los reportes viven solo en memoria; se pierden al reiniciar la API, el contenedor o el pod. No se comparten entre procesos; los manifiestos declaran una sola réplica.
+- **Swagger:** la evidencia registra `200` en los metadatos del POST y `201` en ejecución. Esa discrepancia documental sigue siendo una limitación conocida. Swashbuckle `7.3.0` resolvió el problema de renderizado de OpenAPI `3.0.4` descrito en el informe.
+- **Alcance de las capturas:** los estados e IDs corresponden al momento registrado; no garantizan disponibilidad actual ni acceso externo permanente.
+- **Video:** pendiente de publicación; no hay enlace de entrega confirmado.
+- **PDF:** pendiente de preparación y verificación de accesibilidad antes del envío por Teams.
+- **Responsabilidades:** pendiente documentar el reparto de tareas por integrante.
+- **Colaborador:** pendiente agregar o confirmar el acceso de `oalarconpe` al repositorio.
