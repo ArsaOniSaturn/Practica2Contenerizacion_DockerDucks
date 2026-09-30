@@ -31,24 +31,24 @@ docs/evidencias/                   Informe ilustrado y capturas
 
 ## Ejecución local
 
-Restaurá dependencias y ejecutá las pruebas **antes** de iniciar el servidor:
+Restaura dependencias y ejecuta las pruebas **antes** de iniciar el servidor:
 
 ```bash
 dotnet restore DockerDucks.sln
 dotnet test DockerDucks.sln --no-restore
 ```
 
-Después, iniciá la API:
+Después, inicia la API:
 
 ```bash
 dotnet run --project src/DockerDucks.Api --urls http://localhost:8080
 ```
 
-Este comando mantiene ocupada la terminal; detenelo con `Ctrl+C`. Mientras esté activo, abrí [Swagger local](http://localhost:8080/swagger) o [salud local](http://localhost:8080/health). Para ejecutar comandos adicionales, usá otra terminal.
+Este comando mantiene ocupada la terminal; detenlo con `Ctrl+C`. Mientras esté activo, abre [Swagger local](http://localhost:8080/swagger) o [salud local](http://localhost:8080/health). Para ejecutar comandos adicionales, usa otra terminal.
 
 ## Ejecución con Docker
 
-**El puerto local `8080` no puede estar ocupado por la ejecución .NET y el contenedor a la vez.** Detené la API local antes de publicar ese puerto con Docker.
+**El puerto local `8080` no puede estar ocupado por la ejecución .NET y el contenedor a la vez.** Detén la API local antes de publicar ese puerto con Docker.
 
 ```bash
 docker build -t practica2-api:v1 .
@@ -57,7 +57,7 @@ docker run -d -p 8080:8080 --name practica2-api practica2-api:v1
 docker ps --filter "name=practica2-api"
 ```
 
-Accedé a `http://localhost:8080/swagger` y `http://localhost:8080/health`. El nombre `practica2-api` debe estar disponible; si ya existe un contenedor de una ejecución anterior, revisá su estado antes de repetir `docker run`. Para detenerlo sin eliminarlo:
+Accede a `http://localhost:8080/swagger` y `http://localhost:8080/health`. El nombre `practica2-api` debe estar disponible; si ya existe un contenedor de una ejecución anterior, revisa su estado antes de repetir `docker run`. Para detenerlo sin eliminarlo:
 
 ```bash
 docker stop practica2-api
@@ -67,17 +67,17 @@ docker stop practica2-api
 
 ### 1. Cargar la imagen correcta
 
-Construí `practica2-api:v1` con el comando Docker anterior. En el **Docker Desktop con kind de un solo nodo observado**, Docker y Kubernetes usan almacenes separados: que `docker images` muestre la imagen no significa que containerd tenga esa versión. La importación local verificada, antes del despliegue, es:
+Construye `practica2-api:v1` con el comando Docker anterior. En el **Docker Desktop con kind de un solo nodo observado**, Docker y Kubernetes usan almacenes separados: que `docker images` muestre la imagen no significa que containerd tenga esa versión. La importación local verificada, antes del despliegue, es:
 
 ```bash
 docker save practica2-api:v1 | docker exec -i desktop-control-plane ctr -n k8s.io images import -
 ```
 
-Este comando requiere que el nodo sea el contenedor `desktop-control-plane`; no es una receta universal ni una publicación en la nube. En otros clústeres, cargá la imagen correspondiente mediante el mecanismo de tu entorno o un registro compatible con la referencia del Deployment.
+Este comando requiere que el nodo sea el contenedor `desktop-control-plane`; no es una receta universal ni una publicación en la nube. En otros clústeres, carga la imagen correspondiente mediante el mecanismo de tu entorno o un registro compatible con la referencia del Deployment.
 
 ### 2. Aplicar los recursos y comprobar el estado
 
-Creá primero el namespace y luego los recursos que lo usan:
+Crea primero el namespace y luego los recursos que lo usan:
 
 ```bash
 kubectl apply -f k8s/namespace.yaml
@@ -88,7 +88,7 @@ kubectl get pods -n practica2
 kubectl get services -n practica2
 ```
 
-El Deployment usa `practica2-api:v1` con `imagePullPolicy: IfNotPresent`. **Si reconstruís la misma etiqueta `v1`, volvé a importar la imagen y reiniciá el rollout** para que los pods usen la versión actualizada en el entorno observado:
+El Deployment usa `practica2-api:v1` con `imagePullPolicy: IfNotPresent`. **Si reconstruyes la misma etiqueta `v1`, vuelve a importar la imagen y reinicia el rollout** para que los pods usen la versión actualizada en el entorno observado:
 
 ```bash
 docker save practica2-api:v1 | docker exec -i desktop-control-plane ctr -n k8s.io images import -
@@ -98,13 +98,13 @@ kubectl rollout status deployment/docker-ducks-api -n practica2
 
 ### 3. Acceder a la API
 
-Mantené abierto este comando en otra terminal:
+Mantén abierto este comando en otra terminal:
 
 ```bash
 kubectl port-forward -n practica2 service/docker-ducks-api 18081:8080
 ```
 
-Abrí [Swagger en Kubernetes](http://localhost:18081/swagger) o [salud en Kubernetes](http://localhost:18081/health). El puerto local `18081` evita competir con Docker en `8080`. El Service también declara NodePort `30080`, pero su acceso directo no estuvo disponible en el entorno de captura.
+Abre [Swagger en Kubernetes](http://localhost:18081/swagger) o [salud en Kubernetes](http://localhost:18081/health). El puerto local `18081` evita competir con Docker en `8080`. El Service también declara NodePort `30080`, pero su acceso directo no estuvo disponible en el entorno de captura.
 
 ## Pruebas y contrato de la API
 
