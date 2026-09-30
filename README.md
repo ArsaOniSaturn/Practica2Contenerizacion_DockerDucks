@@ -14,38 +14,7 @@
 
 API REST en ASP.NET Core (.NET 8) para registrar reportes de rescate de fauna silvestre y organizar su atención según prioridad: `Critical`, `High` o `Medium`. La práctica demuestra la construcción de una imagen Docker y su ejecución en Kubernetes, con verificación funcional y de salud.
 
-Podés seguir las rutas de ejecución local, Docker o Kubernetes de este documento. Los resultados capturados están en el [informe de evidencias](docs/evidencias/README.md); el video, el PDF y otros pendientes de entrega se detallan al final.
-
-## Arquitectura
-
-La API usa Minimal APIs. El endpoint de creación valida la solicitud, calcula la prioridad y guarda el reporte en un repositorio singleton en memoria. Las consultas usan ese mismo repositorio; no hay base de datos ni servicios externos.
-
-```mermaid
-flowchart LR
-    Client["Cliente HTTP / Swagger"] --> Post["POST /api/rescue-reports: validación"]
-    Post --> Priority["PriorityCalculator.Determine"]
-    Priority --> Save["Endpoint: crea el reporte y llama Add"]
-    Save --> Repository["RescueReportRepository: memoria del proceso"]
-    Client --> Get["GET por ID / cola"]
-    Get --> Repository
-    Repository --> Queue["Cola: prioridad y luego fecha de creación"]
-```
-
-El [Dockerfile](Dockerfile) compila con el SDK de .NET 8 y ejecuta la API con la imagen de ASP.NET 8, como usuario no root, en el puerto `8080`. Los [manifiestos](k8s/deployment.yaml) declaran una sola réplica, recursos de CPU/memoria y probes de readiness/liveness sobre `/health`.
-
-```mermaid
-flowchart LR
-    Source["src/DockerDucks.Api"] --> Build["Dockerfile: restore y publish"]
-    Build --> Image["practica2-api:v1"]
-    Image --> Docker["Contenedor Docker: 8080:8080"]
-    Image --> Load["Carga de imagen en el clúster"]
-    Load --> Pod["Deployment docker-ducks-api: 1 réplica, puerto 8080"]
-    Service["Service docker-ducks-api: NodePort 30080, puerto 8080"] --> Pod
-    Browser["Cliente local: localhost:18081"] --> Forward["kubectl port-forward 18081:8080"]
-    Forward --> Service
-```
-
-El Deployment y el Service pertenecen al namespace `practica2`. El NodePort `30080` depende de la red del entorno; la ruta local demostrada es `port-forward`. No se configura Ingress ni se afirma un despliegue en la nube.
+Podés seguir las rutas de ejecución local, Docker o Kubernetes de este documento. Los resultados capturados están en el [informe de evidencias](docs/evidencias/README.md).
 
 ## Estructura del repositorio
 
@@ -59,16 +28,6 @@ Dockerfile                        Construcción multietapa
 k8s/                              Namespace, Deployment y Service
 docs/evidencias/                   Informe ilustrado y capturas
 ```
-
-## Requisitos
-
-| Ruta | Herramientas |
-|---|---|
-| Local y pruebas | SDK de .NET 8 |
-| Docker | Docker en ejecución; acceso a las imágenes base durante la construcción |
-| Kubernetes | Clúster disponible, `kubectl` con el contexto correcto e imagen cargada en ese entorno |
-
-El entorno documentado usa Docker Desktop con Kubernetes basado en kind de un solo nodo. La importación indicada abajo es específica de ese entorno. Ejecutá los comandos desde la raíz del repositorio; las tuberías mostradas usan una terminal compatible con Bash.
 
 ## Ejecución local
 
@@ -186,13 +145,3 @@ La cola ordena primero por `Critical`, `High`, `Medium` y después por fecha de 
 ## Evidencias
 
 El [informe de evidencias](docs/evidencias/README.md) reúne capturas de imagen y contenedor Docker, solicitud y respuesta desde Swagger, pod y Service de Kubernetes, salud por `port-forward` y extractos de los manifiestos. También explica los problemas encontrados y su resolución. Es la base factual para preparar el PDF, no una afirmación de que el PDF ya esté entregado.
-
-## Limitaciones y pendientes
-
-- **Persistencia:** los reportes viven solo en memoria; se pierden al reiniciar la API, el contenedor o el pod. No se comparten entre procesos; los manifiestos declaran una sola réplica.
-- **Swagger:** la evidencia registra `200` en los metadatos del POST y `201` en ejecución. Esa discrepancia documental sigue siendo una limitación conocida. Swashbuckle `7.3.0` resolvió el problema de renderizado de OpenAPI `3.0.4` descrito en el informe.
-- **Alcance de las capturas:** los estados e IDs corresponden al momento registrado; no garantizan disponibilidad actual ni acceso externo permanente.
-- **Video:** pendiente de publicación; no hay enlace de entrega confirmado.
-- **PDF:** pendiente de preparación y verificación de accesibilidad antes del envío por Teams.
-- **Responsabilidades:** pendiente documentar el reparto de tareas por integrante.
-- **Colaborador:** pendiente agregar o confirmar el acceso de `oalarconpe` al repositorio.
