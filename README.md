@@ -16,6 +16,8 @@ API REST en ASP.NET Core (.NET 8) para registrar reportes de rescate de fauna si
 
 Puedes seguir las rutas de ejecución local, Docker o Kubernetes de este documento. Los resultados capturados están en el [informe de evidencias](docs/evidencias/README.md).
 
+Link Video Youtube: https://youtu.be/GcR1wrOy23Q
+
 ## Estructura del repositorio
 
 ```text
