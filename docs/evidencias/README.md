@@ -96,4 +96,3 @@ Los extractos de YAML respaldan la configuración observada: namespace `practica
 - Los estados `Running`, `1/1`, cero reinicios, los IDs y la disponibilidad de puertos corresponden al instante de las capturas.
 - El NodePort `30080` está declarado en el Service, pero su accesibilidad directa depende de la red y del entorno local.
 - La evidencia funcional de Kubernetes prueba la ruta de salud por `port-forward`; no prueba acceso externo permanente por NodePort.
-- Este informe no afirma la entrega de un video, un PDF ni la publicación de enlaces.
