@@ -14,7 +14,7 @@
 
 API REST en ASP.NET Core (.NET 8) para registrar reportes de rescate de fauna silvestre y organizar su atención según prioridad: `Critical`, `High` o `Medium`. La práctica demuestra la construcción de una imagen Docker y su ejecución en Kubernetes, con verificación funcional y de salud.
 
-Podés seguir las rutas de ejecución local, Docker o Kubernetes de este documento. Los resultados capturados están en el [informe de evidencias](docs/evidencias/README.md).
+Puedes seguir las rutas de ejecución local, Docker o Kubernetes de este documento. Los resultados capturados están en el [informe de evidencias](docs/evidencias/README.md).
 
 ## Estructura del repositorio
 
