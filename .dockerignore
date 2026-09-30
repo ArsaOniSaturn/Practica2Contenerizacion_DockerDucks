@@ -1,0 +1,20 @@
+# Version-control, agent, and editor state
+.git/
+.codegraph/
+.atl/
+.vs/
+.vscode/
+.idea/
+
+# Build outputs and test sources
+**/bin/
+**/obj/
+tests/
+
+# Planning, local evidence, and non-build documentation
+odd/
+evidence/
+local-evidence/
+*.md
+DockerDucks.sln
+.gitignore
